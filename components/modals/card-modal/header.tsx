@@ -23,16 +23,20 @@ export const Header = ({ data }: HeaderProps) => {
 
   const { execute } = useAction(updateCard, {
     onSuccess: (data) => {
-        queryClient.invalidateQueries({
-            queryKey: ["card", data.id]
-        });
+      queryClient.invalidateQueries({
+        queryKey: ["card", data.id],
+      });
 
-        toast.success(`Renamed to "${data.title}"`)
-        setTitle(data.title);
+      queryClient.invalidateQueries({
+        queryKey: ["card-logs", data.id],
+      });
+
+      toast.success(`Renamed to "${data.title}"`);
+      setTitle(data.title);
     },
     onError: (error) => {
-        toast.error(error)
-    }
+      toast.error(error);
+    },
   });
 
   const onBlur = () => {

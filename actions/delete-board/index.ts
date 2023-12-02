@@ -9,6 +9,8 @@ import { DeleteBoard } from "./schema";
 import { redirect } from "next/navigation";
 import { ACTION, ENTITY_TYPE } from "@prisma/client";
 import { createAuditLog } from "@/lib/create-audit-log";
+import { decreaseAvailableCount } from "@/lib/org-limit";
+import { checkSubscription } from "@/lib/subscription";
 
 const handler = async (data: InputType): Promise<Returntype> => {
   const { userId, orgId } = auth();
@@ -18,6 +20,8 @@ const handler = async (data: InputType): Promise<Returntype> => {
       error: "Unauthorized",
     };
   }
+
+  const isPro = await checkSubscription();
 
   const { id } = data;
   let board;
@@ -30,12 +34,16 @@ const handler = async (data: InputType): Promise<Returntype> => {
       },
     });
 
-    await createAuditLog ({
+    if (!isPro) {
+      await decreaseAvailableCount();
+    }
+
+    await createAuditLog({
       entityTitle: board.title,
       entityId: board.id,
       entityType: ENTITY_TYPE.BOARD,
       action: ACTION.DELETE,
-    })
+    });
   } catch (error) {
     return {
       error: "Failed to delete.",
@@ -43,7 +51,7 @@ const handler = async (data: InputType): Promise<Returntype> => {
   }
 
   revalidatePath(`/organization/${orgId}`);
-  redirect(`/organization/${orgId}`)
+  redirect(`/organization/${orgId}`);
 };
 
 export const deleteBoard = createSafeAction(DeleteBoard, handler);

@@ -60,6 +60,7 @@ export const FormPicker = ({ id, errors }: FormPickerProps) => {
       <div className="grid grid-cols-3 gap-2 mb-2">
         {images.map((image) => (
           <div
+            key={image.id}
             className={cn(
               "cursor-pointer relative aspect-video group hover:opacity-75 transition bg-muted",
               pending && "opacity-50 hover:opacity-50 cursor-auto"
@@ -69,14 +70,14 @@ export const FormPicker = ({ id, errors }: FormPickerProps) => {
               setSelectedImageId(image.id);
             }}
           >
-            <input 
-            type="radio"
-            id={id}
-            name={id}
-            className="hidden"
-            checked={selectedImageId === image.id}
-            disabled={pending}
-            value={`${image.id} | ${image.urls.thumb} | ${image.urls.full}
+            <input
+              type="radio"
+              id={id}
+              name={id}
+              className="hidden"
+              checked={selectedImageId === image.id}
+              disabled={pending}
+              value={`${image.id} | ${image.urls.thumb} | ${image.urls.full}
             | ${image.links.html} | ${image.user.name}
             `}
             />
